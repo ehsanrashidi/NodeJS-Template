@@ -1,3 +1,4 @@
 {
-    "accessDenied":"access-denied"
+    "accessDenied": "access-denied",
+    "DuplicateKeyError": "duplicate-key-error"
 }
