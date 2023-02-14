@@ -7,11 +7,27 @@ exports.signToken = (payload) => {
 };
 
 // Verify and decode a JWT with the provided token and secret
-exports.verifyToken = (token) => {
+exports.verifyToken = (token,cb) => {
   try {
     const decoded = jwt.verify(token, secretKey);
-    return decoded;
+    cb(decoded);
   } catch (err) {
-    return null;
+    cb(null);
   }
 };
+exports.VerifyAccess = (req, res, next)=> {
+    const authHeader = req.headers.authorization;
+    if (!authHeader) {
+      return res.status(401).send({ ErrorMessage: messages.accessDenied });
+    }
+  
+    const token = authHeader.split(' ')[1];
+  
+    this.verifyToken(token, (decoded) => {
+      if (!decoded) {
+        return res.status(401).send({ ErrorMessage: messages.accessDenied });
+      }
+      req.userId = decoded.id;
+      next();
+    });
+  }
