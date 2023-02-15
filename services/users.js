@@ -24,4 +24,19 @@ module.exports = {
                 else resolve(false);
             })
         ),
+    login:(data)=>{
+        new Promise((resolve,reject)=>{
+            // Find user document with matching username
+            User.findOne({ userName:data.userName },(err,user)=>{
+                if(err) reject(err)
+                if (!user) 
+                    reject(false); // User not found
+                // Compare hashed password with provided password
+                user.isValidPassword(data.password,(passError,isMatch)=>{
+                    if(passError) reject(passError);
+                    else resolve(isMatch);
+                }); 
+            }); 
+        });
+    }
 };

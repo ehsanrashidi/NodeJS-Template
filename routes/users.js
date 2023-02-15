@@ -16,6 +16,13 @@ router.post("/", (req, res) => {
         .catch((err) => new Response(res).Failed(err));
 });
 
+router.post('/login',(req,res)=>{
+    users
+    .login(req.body)
+    .then((result)=> new Response(res).Success(result))
+    .catch((err)=>new Response(res).Failed(err))
+})
+
 router.get("/check-user-name/:username", (req, res) => {
     users
         .checkUserName(req.params.username)
