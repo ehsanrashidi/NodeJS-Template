@@ -6,11 +6,14 @@ const Response = require("../models/response");
 exports.signToken = (payload) => jwt.sign(payload, secretKey);
 
 // Verify and decode a JWT with the provided token and secret
-exports.verifyToken = (token, cb) => {
+exports.verifyToken = async (req, cb) => {
     try {
-        const decoded = jwt.verify(token, secretKey);
-        cb(decoded);
+        const authHeader = req.headers.authorization;
+        const token = authHeader.split(" ")[1];
+        if (!authHeader) cb(null);
+        cb(await jwt.verify(token, secretKey));
     } catch (err) {
+        console.log("err: ", err);
         cb(null);
     }
 };
@@ -19,11 +22,9 @@ exports.VerifyAccess = (req, res, next) => {
     const authHeader = req.headers.authorization;
     if (!authHeader) return new Response(res).AccessDenied();
 
-    const token = authHeader.split(" ")[1];
-
-    this.verifyToken(token, (decoded) => {
+    this.verifyToken(req, (decoded) => {
         if (!decoded) return new Response(res).AccessDenied();
-        req.userId = decoded.id;
+        req.userId = decoded.userId;
         next();
     });
 };
