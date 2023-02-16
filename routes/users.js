@@ -5,7 +5,7 @@ const { VerifyAccess, verifyToken } = require("../authentication");
 const Response = require("../models/response");
 const UserDTO = require("../dto/UserDTO");
 
-router.get("/init-user/:userid", VerifyAccess, async (req, res) => {
+router.get("/profile/:userid", VerifyAccess, async (req, res) => {
     var user = users.getById(req.params.userid);
     res.send({ user });
 });
@@ -20,8 +20,14 @@ router.post("/", (req, res) => {
 router.post("/login", (req, res) => {
     users
         .login(req.body)
-        .then((result) => new Response(res).Success(result))
-        .catch((err) => new Response(res).Failed(err));
+        .then((result) => {
+            console.log("result: ", result);
+            new Response(res).Success(result);
+        })
+        .catch((err) => {
+            console.log("error: ", err);
+            new Response(res).Failed(err);
+        });
 });
 
 router.get("/check-user-name/:username", (req, res) => {
@@ -36,6 +42,17 @@ router.get("/check-user-info", VerifyAccess, (req, res) => {
         .getById(req.userId)
         .then((user) => {
             new Response(res).Success({ exists: true, result: new UserDTO(user) });
+        })
+        .catch((err) => {
+            new Response(res).Failed(err);
+        });
+});
+
+router.post("/change-password", VerifyAccess, (req, res) => {
+    users
+        .changePassword(req.userId, req.body.oldPassword, req.body.newPassword)
+        .then((result) => {
+            new Response(res).Success({ result: result });
         })
         .catch((err) => {
             new Response(res).Failed(err);
