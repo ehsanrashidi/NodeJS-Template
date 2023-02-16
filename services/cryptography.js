@@ -1,13 +1,10 @@
 const bcrypt = require("bcrypt");
 
 module.exports = {
-    hash: (input, cb) => {
-        // Generate a hash of the password
-        bcrypt.hash(input, 10, (err, hash) => cb({ err: err, hash: hash }));
-    },
+    // Generate a hash of the password
+    hash: (input, cb) => bcrypt.hash(input, 10, (err, hash) => cb({ err: err, hash: hash })),
+
+    // Compare a password with a hash
     compare: (input, hash) =>
-        new Promise((resolve, reject) => {
-            // Compare a password with a hash
-            bcrypt.compare(input, hash, (err, isMatch) => (err ? reject(err) : resolve(isMatch)));
-        }),
+        new Promise((resolve, reject) => bcrypt.compare(input, hash, (err, isMatch) => (err ? reject(err) : resolve(isMatch)))),
 };
