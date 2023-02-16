@@ -1,5 +1,6 @@
 const { signToken } = require("../authentication");
 const { users, messages } = require("../models");
+const { compare } = require("./cryptography");
 
 module.exports = {
     getById: (userId) =>
@@ -11,13 +12,11 @@ module.exports = {
         ),
     save: (user) =>
         new Promise((resolve, reject) => {
-            new users(user)
-                .save((err, res) => {
-                    if (err && err.code === 11000) reject(messages.DuplicateKeyError);
-                    else if (err) reject(err);
-                    else resolve(res);
-                })
-                .catch(reject);
+            new users(user).save((err, res) => {
+                if (err && err.code === 11000) reject(messages.DuplicateKeyError);
+                else if (err) reject(err);
+                else resolve(res);
+            });
         }),
     checkUserName: (username) =>
         new Promise((resolve, reject) =>
@@ -38,7 +37,7 @@ module.exports = {
                 console.log("user: ", user);
                 console.log("user.isValidPassword: ", user.isValidPassword);
                 user.isValidPassword(data.password)
-                    .then((isMatch) => resolve({ status: isMatch, token: isMatch ? signToken({ userId: user._id }) : null }))
+                    .then((isMatch) => (isMatch ? resolve({ token: signToken({ userId: user._id }) }) : reject(messages.LoginFailed)))
                     .catch(reject);
             });
         }),
@@ -47,13 +46,14 @@ module.exports = {
             users.findOne({ _id: userId }, async (findError, user) => {
                 if (!user) reject(messages.UserNotFound);
 
-                const isMatch = await bcrypt.compare(oldPassword, user.password);
-
-                if (!isMatch) reject(messages.OldPasswordIsIncorrect);
-
-                user.password = newPassword;
-                await user.save();
-                resolve({ changed: true });
+                compare(oldPassword, user.password)
+                    .then((isMatch) => {
+                        if (!isMatch) reject(messages.OldPasswordIsIncorrect);
+                        user.password = newPassword;
+                        user.save();
+                        resolve({ changed: true });
+                    })
+                    .catch((compareErroe) => reject(messages.ServerError));
             });
         }),
 };

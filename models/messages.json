@@ -2,5 +2,7 @@
     "accessDenied": "access-denied",
     "DuplicateKeyError": "duplicate-key-error",
     "UserNotFound": "user-not-found",
-    "OldPasswordIsIncorrect": "old-password-is-incorrect"
+    "OldPasswordIsIncorrect": "old-password-is-incorrect",
+    "ServerError": "server-error",
+    "LoginFailed": "login-failed"
 }

@@ -6,28 +6,24 @@ const Response = require("../models/response");
 const UserDTO = require("../dto/UserDTO");
 
 router.get("/profile/:userid", VerifyAccess, async (req, res) => {
-    var user = users.getById(req.params.userid);
-    res.send({ user });
+    users
+        .getById(req.params.userid)
+        .then((user) => new Response(res).Success({ user: new UserDTO(user) }))
+        .catch((err) => new Response(res).Failed(err));
 });
 
 router.post("/", (req, res) => {
     users
         .save(req.body)
         .then((user) => new Response(res).Success({ user: new UserDTO(user) }))
-        .catch((err) => new Response(res).Failed(err));
+        .catch((err) => new Response(res).Failed(err, 422));
 });
 
 router.post("/login", (req, res) => {
     users
         .login(req.body)
-        .then((result) => {
-            console.log("result: ", result);
-            new Response(res).Success(result);
-        })
-        .catch((err) => {
-            console.log("error: ", err);
-            new Response(res).Failed(err);
-        });
+        .then((result) => new Response(res).Success(result))
+        .catch((err) => new Response(res).Failed(err, 403));
 });
 
 router.get("/check-user-name/:username", (req, res) => {

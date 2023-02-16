@@ -5,8 +5,9 @@ module.exports = {
         // Generate a hash of the password
         bcrypt.hash(input, 10, (err, hash) => cb({ err: err, hash: hash }));
     },
-    compare: (input, hash, cb) => {
-        // Compare a password with a hash
-        bcrypt.compare(input, hash, (err, result) => cb(err ? false : result));
-    },
+    compare: (input, hash) =>
+        new Promise((resolve, reject) => {
+            // Compare a password with a hash
+            bcrypt.compare(input, hash, (err, isMatch) => (err ? reject(err) : resolve(isMatch)));
+        }),
 };

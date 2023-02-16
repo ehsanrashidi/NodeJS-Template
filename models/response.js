@@ -10,8 +10,8 @@ class Response {
         return this.res.send(this.response);
     }
 
-    Failed(err) {
-        this.response = { result: null, status: false, ErrorMessage: err, StatusCode: 500 };
+    Failed(err, erroCode = 500) {
+        this.response = { result: null, status: false, ErrorMessage: err, StatusCode: erroCode };
         return this.res.send(this.response);
     }
 
